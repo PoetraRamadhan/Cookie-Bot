@@ -34,7 +34,7 @@ module.exports = {
             });
             await newData.save()
             .catch(err => console.log(client.chalk.red(err)));
-            warnEmbed.setDescription(`Successfully warned __${target.user.username}__ with the reason of \`${reason}\`.`)
+            warnEmbed.setDescription(`Successfully warned **${target.user.username}** with the reason of \`${reason}\`.`)
             warnEmbed.setColor('GREEN')
             return message.channel.send(warnEmbed);
         } else {
@@ -44,7 +44,7 @@ module.exports = {
             });
             await User.save()
             .catch(err => console.log(client.chalk.red(err)));
-            warnEmbed.setDescription(`Successfully warned __${target.user.username}__ with the reason of \`${reason}\`.`)
+            warnEmbed.setDescription(`Successfully warned **${target.user.username}** with the reason of \`${reason}\`.`)
             warnEmbed.setColor('GREEN')
             return message.channel.send(warnEmbed);
         }

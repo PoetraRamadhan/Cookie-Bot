@@ -12,10 +12,6 @@ module.exports = {
         let roleEmbed = new MessageEmbed()
         .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
 
-        // const user = message.mentions.members.first() || message.guild.members.cache.get(args[0]);
-
-        
-        
         const member = message.mentions.members.first() || message.guild.members.cache.get(args[0]);
         if(!member) return message.channel.send('Please provide a user.');
 

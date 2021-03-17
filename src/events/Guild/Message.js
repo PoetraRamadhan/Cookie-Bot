@@ -63,20 +63,20 @@ module.exports = {
             client.cooldowns.set(command.name, new Collection());
         };
 
-        const currentDate = Date.now();
+        const now = Date.now();
         const timestamps = client.cooldowns.get(command.name);
         const cooldownAmount = (command.cooldowns || 3) * 1000;
 
-        if(timestamps.has(message.author.id)) {
-            const timeout = timestamps.get(message.author.id) + cooldownAmount;
+        if (timestamps.has(message.author.id)) {
+            const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
 
-            if(currentDate < timestamps) {
-                const timeLeft = (timeout - currentDate) / 1000;
-                return message.channel.send(`The command \`${command.name}\` is in a cooldown, you can do it again in \`${timeLeft.toFixed(1)} seconds\``)
+            if (now < expirationTime) {
+                const timeLeft = (expirationTime - now) / 1000;
+                return message.channel.send(`The command \`${command.name}\` is in a cooldown, you can do it again in \`${timeLeft.toFixed(1)} seconds\``);
             }
-        } else command.run(client, message, args); // Run the command 
+        } else command.run(client, message, args); // Run the command
 
-        timestamps.set(message.author.id, currentDate);
-        setTimeout(() => timestamps.delete(message.author.id), cooldownAmount)
+        timestamps.set(message.author.id, now);
+        setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
     }
 }
