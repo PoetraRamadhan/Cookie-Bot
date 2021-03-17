@@ -13,6 +13,6 @@ A Discord bot for your server
         - [] Mute - Mute a user
         - [] Unmute - Unmute a user
     - [] Configuration Command
-        - [] SetMuteRole - Sets up the mute role for muting
+        - [x] SetMuteRole - Sets up the mute role for muting
         - [] SetWelcome - Sets up a channel for welcoming members
         - [] SetGoodbye - Sets up a channel for members that just left
