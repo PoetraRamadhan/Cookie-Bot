@@ -1,18 +1,23 @@
 const { MessageEmbed } = require('discord.js');
+const ConfigModel = require('../../models/ConfigModel');
 
 module.exports = {
-    name: 'removerole',
-    description: 'Remove role to the specific member by the role ID',
+    name: 'unmute',
+    description: 'Unmute a member if they are muted',
     category: 'moderation',
-    usage: 'removerole <Member/ID> <RoleID>',
+    usage: 'unmute <Member/ID>',
     clientPermissions: ['MANAGE_ROLES'],
     userPermissions: ['MANAGE_ROLES'],
-    cooldowns: 3,
+    cooldowns: 5,
     run: async (client, message, args) => {
-        const member =
+        const Guild = await ConfigModel.findOne({ guildId: message.guild.id });
+        const muteRole = Guild.muteRoleId;
+
+        const target =
             message.mentions.members.first() ||
             message.guild.members.cache.get(args[0]);
-        if (!member)
+
+        if (!target)
             return message.channel.send(
                 new MessageEmbed({
                     author: {
@@ -21,31 +26,15 @@ module.exports = {
                             dynamic: true,
                         }),
                     },
-                    description: 'Please specify a member.',
-                    color: 'RED',
-                    footer: 'You can also use ID of the member!',
-                })
-            );
-
-        const role = message.guild.roles.cache.get(args[1]);
-        if (!role)
-            return message.channel.send(
-                new MessageEmbed({
-                    author: {
-                        name: message.author.tag,
-                        iconURL: message.author.displayAvatarURL({
-                            dynamic: true,
-                        }),
-                    },
-                    description: 'Please specify a role ID',
+                    description: 'Please specify a member to unmute',
                     color: 'RED',
                 })
             );
 
-        const memberPosition = member.roles.highest.rawPosition;
-        const moderationPosition = message.member.roles.highest.rawPosition;
-
-        if (moderationPosition <= memberPosition)
+        if (
+            target.roles.highest.position >=
+            message.member.roles.highest.position
+        )
             return message.channel.send(
                 new MessageEmbed({
                     author: {
@@ -55,13 +44,13 @@ module.exports = {
                         }),
                     },
                     description:
-                        'Access Denied!\nYou need to be on a higher role.',
+                        'You cannot mute someone who is higher/same role as you!',
                     color: 'RED',
                 })
             );
 
-        try {
-            member.roles.remove(role);
+        if (target.roles.cache.has(muteRole)) {
+            target.roles.remove(muteRole);
             return message.channel.send(
                 new MessageEmbed({
                     author: {
@@ -70,15 +59,20 @@ module.exports = {
                             dynamic: true,
                         }),
                     },
-                    description: `Removed role to ${member}`,
+                    description: `Successfully unmuted ${target}`,
                     color: 'GREEN',
                 })
             );
-        } catch (error) {
-            console.log(client.chalk.red(err));
+        } else {
             return message.channel.send(
                 new MessageEmbed({
-                    description: `\`\`\`ERROR: ${error}\`\`\``,
+                    author: {
+                        name: message.author.tag,
+                        iconURL: message.author.displayAvatarURL({
+                            dynamic: true,
+                        }),
+                    },
+                    description: 'That member is already unmuted!',
                     color: 'RED',
                 })
             );

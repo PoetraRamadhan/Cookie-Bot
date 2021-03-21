@@ -5,7 +5,7 @@ const ConfigSchema = new mongoose.Schema({
     prefix: String,
     welcomeChannelId: String,
     goodbyeChannelId: String,
-    muteRoleId: String
+    muteRoleId: String,
 });
 
 module.exports = mongoose.model('config_server', ConfigSchema);

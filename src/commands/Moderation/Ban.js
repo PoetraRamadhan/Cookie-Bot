@@ -1,4 +1,5 @@
-const { Client, Message, MessageEmbed } = require("discord.js")
+const { MessageEmbed } = require('discord.js');
+const ms = require('ms');
 
 module.exports = {
     name: 'ban',
@@ -9,63 +10,108 @@ module.exports = {
     userPermissions: ['BAN_MEMBERS'],
     cooldowns: 5,
     run: async (client, message, args) => {
-        let banEmbed = new MessageEmbed()
-        .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
+        const target =
+            message.mentions.members.first() ||
+            message.guild.members.cache.get(args[0]);
 
-        const target = message.mentions.members.first() ||message.guild.members.cache.get(args[0]);
+        if (!target)
+            return message.channel.send(
+                new MessageEmbed({
+                    author: {
+                        name: message.author.tag,
+                        iconURL: message.author.displayAvatarURL({
+                            dynamic: true,
+                        }),
+                    },
+                    description: 'Please specify a member',
+                    color: 'RED',
+                })
+            );
 
-        if(!target) {
-            banEmbed.setDescription('Please specify a member to ban.')
-            banEmbed.setColor('RED')
-            banEmbed.setFooter('You can use ID!')
-            return message.channel.send(banEmbed);
-        }
+        if (target.id === message.author.id)
+            return message.channel.send(
+                new MessageEmbed({
+                    author: {
+                        name: message.author.tag,
+                        iconURL: message.author.displayAvatarURL({
+                            dynamic: true,
+                        }),
+                    },
+                    description: 'You cannot ban yourself.',
+                    color: 'RED',
+                })
+            );
 
-        if(target.id === message.guild.ownerId) {
-            banEmbed.setDescription('You cannot ban the owner!')
-            banEmbed.setColor('RED')
-            return message.channel.send(banEmbed);
-        }
-
-        if(target.id === message.author.id) {
-            banEmbed.setDescription('You cannot ban yourself!')
-            banEmbed.setColor('RED')
-            return message.channel.send(banEmbed);
-        }
+        if (target.id === message.guild.ownerId)
+            return message.channel.send(
+                new MessageEmbed({
+                    author: {
+                        name: message.author.tag,
+                        iconURL: message.author.displayAvatarURL({
+                            dynamic: true,
+                        }),
+                    },
+                    description: 'You cannot ban the guild owner.',
+                    color: 'RED',
+                })
+            );
 
         const targetPosition = target.roles.highest.rawPosition;
         const modPosition = message.member.roles.highest.rawPosition;
 
-        if(modPosition <= targetPosition) {
-            banEmbed.setDescription('Access Denied!\nYou need to have a higher role.')
-            banEmbed.setColor('RED')
-            return message.channel.send(banEmbed);
-        }
+        if (modPosition <= targetPosition)
+            return message.channel.send(
+                new MessageEmbed({
+                    author: {
+                        name: message.author.tag,
+                        iconURL: message.author.displayAvatarURL({
+                            dynamic: true,
+                        }),
+                    },
+                    description:
+                        'Access Denied!\nYou need to be on a higher role.',
+                    color: 'RED',
+                })
+            );
 
-        let days = parseInt(args[1]);
-        if(!days) days = 0;
+        let time = args[1];
+        if (!time) time = 0;
 
         let reason = args.slice(2).join(' ');
-        if(!reason) reason = 'No reason';
+        if (!reason) reason = 'No reason';
 
-        if(target.bannable) {
+        if (target.bannable) {
             try {
-                target.ban({ })
-                banEmbed.setDescription(`Successfully banned ${target.user.tag} with the reason of ${reason}.`)
-                banEmbed.setColor('GREEN')
-                banEmbed.setFooter(`Ban ends in: ${days || 'Permanent'}`)
-                return message.channel.send(banEmbed);
+                target.ban({ days: ms(time), reason: reason });
+                message.channel.send(
+                    new MessageEmbed({
+                        author: {
+                            name: message.author.tag,
+                            iconURL: message.author.displayAvatarURL({
+                                dynamic: true,
+                            }),
+                        },
+                        description: `Successfully banned ${target.user.tag} with the reason of ${reason}`,
+                        footer: `Ban ends in ${days || 'Permanent'}`,
+                        color: 'GREEN',
+                    })
+                );
             } catch (error) {
-                console.log(clint.chalk.red(error));
-                banEmbed.setDescription(`Something went wrong...\n\`\`\`${error}\`\`\``)
-                banEmbed.setColor('RED')
-                banEmbed.setFooter('Please report this to the dev.')
-                return message.channel.send(banEmbed);
+                console.log(client.chalk.red(error));
             }
         } else {
-            banEmbed.setDescription('Can\'t ban that member')
-            banEmbed.setColor('RED')
-            return message.channel.send(banEmbed);
+            return message.channel.send(
+                new MessageEmbed({
+                    author: {
+                        name: message.author.tag,
+                        iconURL: message.author.displayAvatarURL({
+                            dynamic: true,
+                        }),
+                    },
+                    description: 'Cannot ban that member.',
+                    color: 'RED',
+                })
+            );
         }
-    }
-}
+    },
+};

@@ -11,14 +11,14 @@ const client = new Client({
     messageCacheLifetime: 180,
     messageCacheMaxSize: 200,
     ws: {
-        intents: Intents.ALL
-    }
+        intents: Intents.ALL,
+    },
 });
 
 (async () => {
     await mongoose.connect(process.env.MONGO_URI, {
         useUnifiedTopology: true,
-        useNewUrlParser: true
+        useNewUrlParser: true,
     });
 })();
 

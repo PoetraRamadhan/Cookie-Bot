@@ -2,10 +2,11 @@ const { MessageEmbed } = require('discord.js');
 const ModModel = require('../../models/ModModel');
 
 module.exports = {
-    name: 'warn',
-    description: 'Warns a member',
+    name: 'removewarn',
+    description: 'Removes all the warn from a member.',
     category: 'moderation',
-    usage: 'warn <Member/ID> [reason]',
+    usage: 'removewarn <Member/ID>',
+    aliases: ['remove-warn', 'rw', 'delwarn'],
     clientPermissions: ['MANAGE_MESSAGES'],
     userPermissions: ['MANAGE_MESSAGES'],
     cooldowns: 10,
@@ -23,7 +24,8 @@ module.exports = {
                             dynamic: true,
                         }),
                     },
-                    description: 'Please specify a member to warn.',
+                    description:
+                        'Please specify a member to remove their warnings.',
                     color: 'RED',
                 })
             );
@@ -37,7 +39,7 @@ module.exports = {
                             dynamic: true,
                         }),
                     },
-                    description: 'You cannot warn yourself.',
+                    description: "You can't do that.",
                     color: 'RED',
                 })
             );
@@ -45,22 +47,10 @@ module.exports = {
 
         const User = await ModModel.findOne({
             guildId: message.guild.id,
-            userId: target.user.id,
+            userId: target.id,
         });
 
-        let reason = args.slice(1).join(' ');
-        if (!reason) reason = 'No reason';
-
         if (!User) {
-            const newData = new ModModel({
-                guildId: message.guild.id,
-                userId: target.user.id,
-                warns: [{ modId: message.author.id, reason: reason }],
-            });
-            await newData
-                .save()
-                .catch((err) => console.log(client.chalk.red(err)));
-
             return message.channel.send(
                 new MessageEmbed({
                     author: {
@@ -69,30 +59,27 @@ module.exports = {
                             dynamic: true,
                         }),
                     },
-                    description: `Successfully warned **${target.user.username}** with the reason of \`${reason}\`.`,
-                    color: 'GREEN',
-                })
-            );
-        } else {
-            User.warns.unshift({
-                modId: message.author.id,
-                reason: reason,
-            });
-            await User.save().catch((err) =>
-                console.log(client.chalk.red(err))
-            );
-            return message.channel.send(
-                new MessageEmbed({
-                    author: {
-                        name: message.author.tag,
-                        iconURL: message.author.displayAvatarURL({
-                            dynamic: true,
-                        }),
-                    },
-                    description: `Successfully warned **${target.user.username}** with the reason of \`${reason}\`.`,
-                    color: 'GREEN',
+                    description:
+                        "Looks like that user doesn't have any warnings yet.",
+                    color: 'RED',
                 })
             );
         }
+
+        await User.deleteOne().catch((err) =>
+            console.log(client.chalk.red(err))
+        );
+        return message.channel.send(
+            new MessageEmbed({
+                author: {
+                    name: message.author.tag,
+                    iconURL: message.author.displayAvatarURL({
+                        dynamic: true,
+                    }),
+                },
+                description: `Successfully remove ${target} warning(s)`,
+                color: 'GREEN',
+            })
+        );
     },
 };
