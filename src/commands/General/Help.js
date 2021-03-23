@@ -56,7 +56,7 @@ module.exports = {
             const commands = await client.commands;
 
             let commandsEmbed = new MessageEmbed()
-                .setTitle('Command List')
+                .setTitle(`Command List - [${commands.size}]`)
                 .setColor('RANDOM')
                 .setThumbnail(client.user.displayAvatarURL())
                 .setFooter('<> - Required | [] - optional');

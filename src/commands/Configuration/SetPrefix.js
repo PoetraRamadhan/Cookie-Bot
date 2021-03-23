@@ -5,7 +5,7 @@ module.exports = {
     name: 'setprefix',
     description: 'Set a costum prefix for your server',
     category: 'configuration',
-    usage: 'setpreix <prefix>',
+    usage: 'setprefix <prefix>',
     aliases: ['set-prefix'],
     clientPermissions: ['MANAGE_GUILD'],
     userPermissions: ['MANAGE_GUILD'],

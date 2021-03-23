@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const ConfigModel = require('../../models/ConfigModel');
+const UserModel = require('../../models/UserModel');
 
 module.exports = {
     name: 'test',
@@ -9,7 +9,7 @@ module.exports = {
     ownerOnly: true,
     cooldowns: 5,
     run: async (client, message, args) => {
-        const Config = await ConfigModel.findOne({ guildId: message.guild.id });
+        const Config = await UserModel.findOne({ userId: message.author.id });
         console.log(Config);
     },
 };
